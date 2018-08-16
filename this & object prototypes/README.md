@@ -1,13 +1,5 @@
 # You Don't Know JS: *this* & Object Prototypes
 
-<img src="cover.jpg" width="300">
-
------
-
-**[Purchase digital/print copy from O'Reilly](http://shop.oreilly.com/product/0636920033738.do)**
-
------
-
 [Table of Contents](toc.md)
 
 * [Chapter 1: *this* Or That?](ch1.md) — 33% useful
