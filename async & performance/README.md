@@ -1,6 +1,6 @@
 # You Don't Know JS: Async & Performance
 
-* [Chapter 1: Asynchrony: Now & Later](ch1.md)
+* [Chapter 1: Asynchrony: Now & Later](ch1.md) — 38% useful
 * [Chapter 2: Callbacks](ch2.md)
 * [Chapter 3: Promises](ch3.md)
 * [Chapter 4: Generators](ch4.md)
