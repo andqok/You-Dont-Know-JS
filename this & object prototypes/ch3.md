@@ -1,8 +1,6 @@
 # You Don't Know JS: *this* & Object Prototypes
 # Chapter 3: Objects
 
-In Chapters 1 and 2, we explained how the `this` binding points to various objects depending on the call-site of the function invocation. But what exactly are objects, and why do we need to point to them? We will explore objects in detail in this chapter.
-
 ## Syntax
 
 Objects come in two forms: the declarative (literal) form, and the constructed form.
@@ -29,24 +27,7 @@ The constructed form and the literal form result in exactly the same sort of obj
 
 ## Type
 
-Objects are the general building block upon which much of JS is built. They are one of the 6 primary types (called "language types" in the specification) in JS:
-
-* `string`
-* `number`
-* `boolean`
-* `null`
-* `undefined`
-* `object`
-
-Note that the *simple primitives* (`string`, `number`, `boolean`, `null`, and `undefined`) are **not** themselves `objects`. `null` is sometimes referred to as an object type, but this misconception stems from a bug in the language which causes `typeof null` to return the string `"object"` incorrectly (and confusingly). In fact, `null` is its own primitive type.
-
-**It's a common mis-statement that "everything in JavaScript is an object". This is clearly not true.**
-
-By contrast, there *are* a few special object sub-types, which we can refer to as *complex primitives*.
-
-`function` is a sub-type of object (technically, a "callable object"). Functions in JS are said to be "first class" in that they are basically just normal objects (with callable behavior semantics bolted on), and so they can be handled like any other plain object.
-
-Arrays are also a form of objects, with extra behavior. The organization of contents in arrays is slightly more structured than for general objects.
+`null` is sometimes referred to as an object type, but this misconception stems from a bug in the language which causes `typeof null` to return the string `"object"` incorrectly (and confusingly). In fact, `null` is its own primitive type.
 
 ### Built-in Objects
 
@@ -99,66 +80,12 @@ In both cases, we call a property or method on a string primitive, and the engin
 
 The same sort of coercion happens between the number literal primitive `42` and the `new Number(42)` object wrapper, when using methods like `42.359.toFixed(2)`. Likewise for `Boolean` objects from `"boolean"` primitives.
 
-`null` and `undefined` have no object wrapper form, only their primitive values. By contrast, `Date` values can *only* be created with their constructed object form, as they have no literal form counter-part.
-
-`Object`s, `Array`s, `Function`s, and `RegExp`s (regular expressions) are all objects regardless of whether the literal or constructed form is used. The constructed form does offer, in some cases, more options in creation than the literal form counterpart. Since objects are created either way, the simpler literal form is almost universally preferred. **Only use the constructed form if you need the extra options.**
-
-`Error` objects are rarely created explicitly in code, but usually created automatically when exceptions are thrown. They can be created with the constructed form `new Error(..)`, but it's often unnecessary.
-
 ## Contents
-
-As mentioned earlier, the contents of an object consist of values (any type) stored at specifically named *locations*, which we call properties.
-
-It's important to note that while we say "contents" which implies that these values are *actually* stored inside the object, that's merely an appearance. The engine stores values in implementation-dependent ways, and may very well not store them *in* some object container. What *is* stored in the container are these property names, which act as pointers (technically, *references*) to where the values are stored.
-
-Consider:
-
-```js
-var myObject = {
-	a: 2
-};
-
-myObject.a;		// 2
-
-myObject["a"];	// 2
-```
 
 To access the value at the *location* `a` in `myObject`, we need to use either the `.` operator or the `[ ]` operator. The `.a` syntax is usually referred to as "property" access, whereas the `["a"]` syntax is usually referred to as "key" access. In reality, they both access the same *location*, and will pull out the same value, `2`, so the terms can be used interchangeably. We will use the most common term, "property access" from here on.
 
 The main difference between the two syntaxes is that the `.` operator requires an `Identifier` compatible property name after it, whereas the `[".."]` syntax can take basically any UTF-8/unicode compatible string as the name for the property. To reference a property of the name "Super-Fun!", for instance, you would have to use the `["Super-Fun!"]` access syntax, as `Super-Fun!` is not a valid `Identifier` property name.
 
-Also, since the `[".."]` syntax uses a string's **value** to specify the location, this means the program can programmatically build up the value of the string, such as:
-
-```js
-var wantA = true;
-var myObject = {
-	a: 2
-};
-
-var idx;
-
-if (wantA) {
-	idx = "a";
-}
-
-// later
-
-console.log( myObject[idx] ); // 2
-```
-
-In objects, property names are **always** strings. If you use any other value besides a `string` (primitive) as the property, it will first be converted to a string. This even includes numbers, which are commonly used as array indexes, so be careful not to confuse the use of numbers between objects and arrays.
-
-```js
-var myObject = { };
-
-myObject[true] = "foo";
-myObject[3] = "bar";
-myObject[myObject] = "baz";
-
-myObject["true"];				// "foo"
-myObject["3"];					// "bar"
-myObject["[object Object]"];	// "baz"
-```
 
 ### Computed Property Names
 
@@ -220,8 +147,6 @@ myObject.someFoo;	// function foo(){..}
 
 `someFoo` and `myObject.someFoo` are just two separate references to the same function, and neither implies anything about the function being special or "owned" by any other object. If `foo()` above was defined to have a `this` reference inside it, that `myObject.someFoo` *implicit binding* would be the **only** observable difference between the two references. Neither reference really makes sense to be called a "method".
 
-**Perhaps one could argue** that a function *becomes a method*, not at definition time, but during run-time just for that invocation, depending on how it's called at its call-site (with an object reference context or not -- see Chapter 2 for more details). Even this interpretation is a bit of a stretch.
-
 The safest conclusion is probably that "function" and "method" are interchangeable in JavaScript.
 
 **Note:** ES6 adds a `super` reference, which is typically going to be used with `class` (see Appendix A). The way `super` behaves (static binding rather than late binding as `this`) gives further weight to the idea that a function which is `super` bound somewhere is more a "method" than "function". But again, these are just subtle semantic (and mechanical) nuances.
@@ -241,8 +166,6 @@ someFoo;		// function foo(){..}
 
 myObject.foo;	// function foo(){..}
 ```
-
-**Note:** In Chapter 6, we will cover an ES6 short-hand for that `foo: function foo(){ .. }` declaration syntax in our object-literal.
 
 ### Arrays
 
@@ -273,18 +196,6 @@ myArray.baz;	// "baz"
 Notice that adding named properties (regardless of `.` or `[ ]` operator syntax) does not change the reported `length` of the array.
 
 You *could* use an array as a plain key/value object, and never add any numeric indices, but this is a bad idea because arrays have behavior and optimizations specific to their intended use, and likewise with plain objects. Use objects to store key/value pairs, and arrays to store values at numeric indices.
-
-**Be careful:** If you try to add a property to an array, but the property name *looks* like a number, it will end up instead as a numeric index (thus modifying the array contents):
-
-```js
-var myArray = [ "foo", 42, "bar" ];
-
-myArray["3"] = "baz";
-
-myArray.length;	// 4
-
-myArray[3];		// "baz"
-```
 
 ### Duplicating Objects
 
@@ -591,7 +502,7 @@ var myObject = {
 myObject.b; // undefined
 ```
 
-This behavior is different from when you reference *variables* by their identifier names. If you reference a variable that cannot be resolved within the applicable lexical scope look-up, the result is not `undefined` as it is for object properties, but instead a `ReferenceError` is thrown.
+**This behavior is different from when you reference *variables* by their identifier names. If you reference a variable that cannot be resolved within the applicable lexical scope look-up, the result is not `undefined` as it is for object properties, but instead a `ReferenceError` is thrown.**
 
 ```js
 var myObject = {
@@ -606,22 +517,6 @@ myObject.b; // undefined
 From a *value* perspective, there is no difference between these two references -- they both result in `undefined`. However, the `[[Get]]` operation underneath, though subtle at a glance, potentially performed a bit more "work" for the reference `myObject.b` than for the reference `myObject.a`.
 
 Inspecting only the value results, you cannot distinguish whether a property exists and holds the explicit value `undefined`, or whether the property does *not* exist and `undefined` was the default return value after `[[Get]]` failed to return something explicitly. However, we will see shortly how you *can* distinguish these two scenarios.
-
-### `[[Put]]`
-
-Since there's an internally defined `[[Get]]` operation for getting a value from a property, it should be obvious there's also a default `[[Put]]` operation.
-
-It may be tempting to think that an assignment to a property on an object would just invoke `[[Put]]` to set or create that property on the object in question. But the situation is more nuanced than that.
-
-When invoking `[[Put]]`, how it behaves differs based on a number of factors, including (most impactfully) whether the property is already present on the object or not.
-
-If the property is present, the `[[Put]]` algorithm will roughly check:
-
-1. Is the property an accessor descriptor (see "Getters & Setters" section below)? **If so, call the setter, if any.**
-2. Is the property a data descriptor with `writable` of `false`? **If so, silently fail in `non-strict mode`, or throw `TypeError` in `strict mode`.**
-3. Otherwise, set the value to the existing property as normal.
-
-If the property is not yet present on the object in question, the `[[Put]]` operation is even more nuanced and complex. We will revisit this scenario in Chapter 5 when we discuss `[[Prototype]]` to give it more clarity.
 
 ### Getters & Setters
 
@@ -792,7 +687,7 @@ Object.getOwnPropertyNames( myObject ); // ["a", "b"]
 
 `Object.keys(..)` returns an array of all enumerable properties, whereas `Object.getOwnPropertyNames(..)` returns an array of *all* properties, enumerable or not.
 
-Whereas `in` vs. `hasOwnProperty(..)` differ in whether they consult the `[[Prototype]]` chain or not, `Object.keys(..)` and `Object.getOwnPropertyNames(..)` both inspect *only* the direct object specified.
+**Whereas `in` vs. `hasOwnProperty(..)` differ in whether they consult the `[[Prototype]]` chain or not, `Object.keys(..)` and `Object.getOwnPropertyNames(..)` both inspect *only* the direct object specified.**
 
 There's (currently) no built-in way to get a list of **all properties** which is equivalent to what the `in` operator test would consult (traversing all properties on the entire `[[Prototype]]` chain, as explained in Chapter 5). You could approximate such a utility by recursively traversing the `[[Prototype]]` chain of an object, and for each level, capturing the list from `Object.keys(..)` -- only enumerable properties.
 
