@@ -16,5 +16,5 @@
 * [Chapter 4: Mixing (Up) "Class" Objects](ch4.md)
 * [Chapter 5: Prototypes](ch5.md)
 * [Chapter 6: Behavior Delegation](ch6.md)
-* [Appendix A: ES6 *class*](apA.md)
+* [Appendix A: ES6 *class*](apA.md) — questionable opinion piece "maybe class syntax wasn't worth it"
 * [Appendix B: Thank You's!](apB.md)
