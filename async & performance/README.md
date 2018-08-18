@@ -6,5 +6,3 @@
 * [Chapter 4: Generators](ch4.md) — 100% useful
 * [Chapter 5: Program Performance](ch5.md) — 4% useful
 * [Chapter 6: Benchmarking & Tuning](ch6.md) — 35% useful
-* [Appendix A: Library: asynquence](apA.md)
-* [Appendix B: Advanced Async Patterns](apB.md)
