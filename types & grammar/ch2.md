@@ -376,13 +376,7 @@ What if we *did* need to compare two `number`s, like `0.1 + 0.2` to `0.3`, knowi
 
 The most commonly accepted practice is to use a tiny "rounding error" value as the *tolerance* for comparison. This tiny value is often called "machine epsilon," which is commonly `2^-52` (`2.220446049250313e-16`) for the kind of `number`s in JavaScript.
 
-As of ES6, `Number.EPSILON` is predefined with this tolerance value, so you'd want to use it, but you can safely polyfill the definition for pre-ES6:
-
-```js
-if (!Number.EPSILON) {
-	Number.EPSILON = Math.pow(2,-52);
-}
-```
+As of ES6, `Number.EPSILON` is predefined with this tolerance value, so you'd want to use it.
 
 We can use this `Number.EPSILON` to compare two `number`s for "equality" (within the rounding error tolerance):
 
@@ -440,26 +434,6 @@ Number.isSafeInteger( Math.pow( 2, 53 ) );			// false
 Number.isSafeInteger( Math.pow( 2, 53 ) - 1 );		// true
 ```
 
-To polyfill `Number.isSafeInteger(..)` in pre-ES6 browsers:
-
-```js
-if (!Number.isSafeInteger) {
-	Number.isSafeInteger = function(num) {
-		return Number.isInteger( num ) &&
-			Math.abs( num ) <= Number.MAX_SAFE_INTEGER;
-	};
-}
-```
-
-### 32-bit (Signed) Integers
-
-While integers can range up to roughly 9 quadrillion safely (53 bits), there are some numeric operations (like the bitwise operators) that are only defined for 32-bit `number`s, so the "safe range" for `number`s used in that way must be much smaller.
-
-The range then is `Math.pow(-2,31)` (`-2147483648`, about -2.1 billion) up to `Math.pow(2,31)-1` (`2147483647`, about +2.1 billion).
-
-To force a `number` value in `a` to a 32-bit signed integer value, use `a | 0`. This works because the `|` bitwise operator only works for 32-bit integer values (meaning it can only pay attention to 32 bits and any other bits will be lost). Then, "or'ing" with zero is essentially a no-op bitwise speaking.
-
-**Note:** Certain special values (which we will cover in the next section) such as `NaN` and `Infinity` are not "32-bit safe," in that those values when passed to a bitwise operator will pass through the abstract operation `ToInt32` (see Chapter 4) and become simply the `+0` value for the purpose of that bitwise operation.
 
 ## Special Values
 
@@ -483,7 +457,7 @@ Regardless of how you choose to "define" and use these two values, `null` is a s
 
 ### Undefined
 
-In non-`strict` mode, it's actually possible (though incredibly ill-advised!) to assign a value to the globally provided `undefined` identifier:
+# In non-`strict` mode, it's actually possible (though incredibly ill-advised!) to assign a value to the globally provided `undefined` identifier:
 
 ```js
 function foo() {
@@ -613,7 +587,7 @@ Easy enough, right? We use the built-in global utility called `isNaN(..)` and it
 
 Not so fast.
 
-The `isNaN(..)` utility has a fatal flaw. It appears it tried to take the meaning of `NaN` ("Not a Number") too literally -- that its job is basically: "test if the thing passed in is either not a `number` or is a `number`." But that's not quite accurate.
+## The `isNaN(..)` utility has a fatal flaw. It appears it tried to take the meaning of `NaN` ("Not a Number") too literally -- that its job is basically: "test if the thing passed in is either not a `number` or is a `number`." But that's not quite accurate.
 
 ```js
 var a = 2 / "foo";
@@ -628,24 +602,8 @@ window.isNaN( b ); // true -- ouch!
 
 Clearly, `"foo"` is literally *not a `number`*, but it's definitely not the `NaN` value either! This bug has been in JS since the very beginning (over 19 years of *ouch*).
 
-As of ES6, finally a replacement utility has been provided: `Number.isNaN(..)`. A simple polyfill for it so that you can safely check `NaN` values *now* even in pre-ES6 browsers is:
+## As of ES6, finally a replacement utility has been provided: `Number.isNaN(..)`. A simple polyfill for it so that you can safely check `NaN` values *now* even in pre-ES6 browsers is:
 
-```js
-if (!Number.isNaN) {
-	Number.isNaN = function(n) {
-		return (
-			typeof n === "number" &&
-			window.isNaN( n )
-		);
-	};
-}
-
-var a = 2 / "foo";
-var b = "foo";
-
-Number.isNaN( a ); // true
-Number.isNaN( b ); // false -- phew!
-```
 
 Actually, we can implement a `Number.isNaN(..)` polyfill even easier, by taking advantage of that peculiar fact that `NaN` isn't equal to itself. `NaN` is the *only* value in the whole language where that's true; every other value is always **equal to itself**.
 
@@ -735,14 +693,6 @@ String( a );				// "0"
 JSON.stringify( a );		// "0"
 ```
 
-Interestingly, the reverse operations (going from `string` to `number`) don't lie:
-
-```js
-+"-0";				// -0
-Number( "-0" );		// -0
-JSON.parse( "-0" );	// -0
-```
-
 **Warning:** The `JSON.stringify( -0 )` behavior of `"0"` is particularly strange when you observe that it's inconsistent with the reverse: `JSON.parse( "-0" )` reports `-0` as you'd correctly expect.
 
 In addition to stringification of negative zero being deceptive to hide its true value, the comparison operators are also (intentionally) configured to *lie*.
@@ -759,19 +709,6 @@ a === b;	// true
 
 0 > -0;		// false
 a > b;		// false
-```
-
-Clearly, if you want to distinguish a `-0` from a `0` in your code, you can't just rely on what the developer console outputs, so you're going to have to be a bit more clever:
-
-```js
-function isNegZero(n) {
-	n = Number( n );
-	return (n === 0) && (1 / n === -Infinity);
-}
-
-isNegZero( -0 );		// true
-isNegZero( 0 / -3 );	// true
-isNegZero( 0 );			// false
 ```
 
 Now, why do we need a negative zero, besides academic trivia?
@@ -796,34 +733,10 @@ Object.is( b, -0 );		// true
 Object.is( b, 0 );		// false
 ```
 
-There's a pretty simple polyfill for `Object.is(..)` for pre-ES6 environments:
-
-```js
-if (!Object.is) {
-	Object.is = function(v1, v2) {
-		// test for `-0`
-		if (v1 === 0 && v2 === 0) {
-			return 1 / v1 === 1 / v2;
-		}
-		// test for `NaN`
-		if (v1 !== v1) {
-			return v2 !== v2;
-		}
-		// everything else
-		return v1 === v2;
-	};
-}
-```
-
-`Object.is(..)` probably shouldn't be used in cases where `==` or `===` are known to be *safe* (see Chapter 4 "Coercion"), as the operators are likely much more efficient and certainly are more idiomatic/common. `Object.is(..)` is mostly for these special cases of equality.
+`Object.is(..)` probably shouldn't be used in cases where `==` or `===` are known to be *safe* (see Chapter 4 "Coercion"), as the operators are likely much more efficient and certainly are more idiomatic/common. # `Object.is(..)` is mostly for these special cases of equality.
 
 ## Value vs. Reference
 
-In many other languages, values can either be assigned/passed by value-copy or by reference-copy depending on the syntax you use.
-
-For example, in C++ if you want to pass a `number` variable into a function and have that variable's value updated, you can declare the function parameter like `int& myNum`, and when you pass in a variable like `x`, `myNum` will be a **reference to `x`**; references are like a special form of pointers, where you obtain a pointer to another variable (like an *alias*). If you don't declare a reference parameter, the value passed in will *always* be copied, even if it's a complex object.
-
-In JavaScript, there are no pointers, and references work a bit differently. You cannot have a reference from one JS variable to another variable. That's just not possible.
 
 A reference in JS points at a (shared) **value**, so if you have 10 different references, they are all always distinct references to a single shared value; **none of them are references/pointers to each other.**
 
