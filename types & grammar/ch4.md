@@ -1347,48 +1347,6 @@ Now that we've thoroughly examined how the *implicit* coercion of `==` loose equ
 
 First, let's examine how modifying the built-in native prototypes can produce crazy results:
 
-#### A Number By Any Other Value Would...
-
-```js
-Number.prototype.valueOf = function() {
-	return 3;
-};
-
-new Number( 2 ) == 3;	// true
-```
-
-**Warning:** `2 == 3` would not have fallen into this trap, because neither `2` nor `3` would have invoked the built-in `Number.prototype.valueOf()` method because both are already primitive `number` values and can be compared directly. However, `new Number(2)` must go through the `ToPrimitive` coercion, and thus invoke `valueOf()`.
-
-Evil, huh? Of course it is. No one should ever do such a thing. The fact that you *can* do this is sometimes used as a criticism of coercion and `==`. But that's misdirected frustration. JavaScript is not *bad* because you can do such things, a developer is *bad* **if they do such things**. Don't fall into the "my programming language should protect me from myself" fallacy.
-
-Next, let's consider another tricky example, which takes the evil from the previous example to another level:
-
-```js
-if (a == 2 && a == 3) {
-	// ..
-}
-```
-
-You might think this would be impossible, because `a` could never be equal to both `2` and `3` *at the same time*. But "at the same time" is inaccurate, since the first expression `a == 2` happens strictly *before* `a == 3`.
-
-So, what if we make `a.valueOf()` have side effects each time it's called, such that the first time it returns `2` and the second time it's called it returns `3`? Pretty easy:
-
-```js
-var i = 2;
-
-Number.prototype.valueOf = function() {
-	return i++;
-};
-
-var a = new Number( 42 );
-
-if (a == 2 && a == 3) {
-	console.log( "Yep, this happened." );
-}
-```
-
-Again, these are evil tricks. Don't do them. But also don't use them as complaints against coercion. Potential abuses of a mechanism are not sufficient evidence to condemn the mechanism. Just avoid these crazy tricks, and stick only with valid and proper usage of coercion.
-
 #### False-y Comparisons
 
 The most common complaint against *implicit* coercion in `==` comparisons comes from how falsy values behave surprisingly when compared to each other.
@@ -1669,14 +1627,3 @@ a < b;						// false -- string comparison!
 Number( a ) < Number( b );	// true -- number comparison!
 ```
 
-## Review
-
-In this chapter, we turned our attention to how JavaScript type conversions happen, called **coercion**, which can be characterized as either *explicit* or *implicit*.
-
-Coercion gets a bad rap, but it's actually quite useful in many cases. An important task for the responsible JS developer is to take the time to learn all the ins and outs of coercion to decide which parts will help improve their code, and which parts they really should avoid.
-
-*Explicit* coercion is code which is obvious that the intent is to convert a value from one type to another. The benefit is improvement in readability and maintainability of code by reducing confusion.
-
-*Implicit* coercion is coercion that is "hidden" as a side-effect of some other operation, where it's not as obvious that the type conversion will occur. While it may seem that *implicit* coercion is the opposite of *explicit* and is thus bad (and indeed, many think so!), actually *implicit* coercion is also about improving the readability of code.
-
-Especially for *implicit*, coercion must be used responsibly and consciously. Know why you're writing the code you're writing, and how it works. Strive to write code that others will easily be able to learn from and understand as well.
