@@ -18,62 +18,14 @@ Here's a list of the most commonly used natives:
 
 As you can see, these natives are actually built-in functions.
 
-If you're coming to JS from a language like Java, JavaScript's `String()` will look like the `String(..)` constructor you're used to for creating string values. So, you'll quickly observe that you can do things like:
-
-```js
-var s = new String( "Hello World!" );
-
-console.log( s.toString() ); // "Hello World!"
-```
-
-It *is* true that each of these natives can be used as a native constructor. But what's being constructed may be different than you think.
-
-```js
-var a = new String( "abc" );
-
-typeof a; // "object" ... not "String"
-
-a instanceof String; // true
-
-Object.prototype.toString.call( a ); // "[object String]"
-```
-
 The result of the constructor form of value creation (`new String("abc")`) is an object wrapper around the primitive (`"abc"`) value.
 
 Importantly, `typeof` shows that these objects are not their own special *types*, but more appropriately they are subtypes of the `object` type.
 
-This object wrapper can further be observed with:
-
-```js
-console.log( a );
-```
-
-The output of that statement varies depending on your browser, as developer consoles are free to choose however they feel it's appropriate to serialize the object for developer inspection.
-
-**Note:** At the time of writing, the latest Chrome prints something like this: `String {0: "a", 1: "b", 2: "c", length: 3, [[PrimitiveValue]]: "abc"}`. But older versions of Chrome used to just print this: `String {0: "a", 1: "b", 2: "c"}`. The latest Firefox currently prints `String ["a","b","c"]`, but used to print `"abc"` in italics, which was clickable to open the object inspector. Of course, these results are subject to rapid change and your experience may vary.
-
 The point is, `new String("abc")` creates a string wrapper object around `"abc"`, not just the primitive `"abc"` value itself.
 
-## Internal `[[Class]]`
 
-Values that are `typeof` `"object"` (such as an array) are additionally tagged with an internal `[[Class]]` property (think of this more as an internal *class*ification rather than related to classes from traditional class-oriented coding). This property cannot be accessed directly, but can generally be revealed indirectly by borrowing the default `Object.prototype.toString(..)` method called against the value. For example:
-
-```js
-Object.prototype.toString.call( [1,2,3] );			// "[object Array]"
-
-Object.prototype.toString.call( /regex-literal/i );	// "[object RegExp]"
-```
-
-So, for the array in this example, the internal `[[Class]]` value is `"Array"`, and for the regular expression, it's `"RegExp"`. In most cases, this internal `[[Class]]` value corresponds to the built-in native constructor (see below) that's related to the value, but that's not always the case.
-
-What about primitive values? First, `null` and `undefined`:
-
-```js
-Object.prototype.toString.call( null );			// "[object Null]"
-Object.prototype.toString.call( undefined );	// "[object Undefined]"
-```
-
-You'll note that there are no `Null()` or `Undefined()` native constructors, but nevertheless the `"Null"` and `"Undefined"` are the internal `[[Class]]` values exposed.
+## Boxing Wrappers
 
 But for the other simple primitives like `string`, `number`, and `boolean`, another behavior actually kicks in, which is usually called "boxing" (see "Boxing Wrappers" section next):
 
@@ -84,10 +36,6 @@ Object.prototype.toString.call( true );		// "[object Boolean]"
 ```
 
 In this snippet, each of the simple primitives are automatically boxed by their respective object wrappers, which is why `"String"`, `"Number"`, and `"Boolean"` are revealed as the respective internal `[[Class]]` values.
-
-**Note:** The behavior of `toString()` and `[[Class]]` as illustrated here has changed a bit from ES5 to ES6, but we cover those details in the *ES6 & Beyond* title of this series.
-
-## Boxing Wrappers
 
 These object wrappers serve a very important purpose. Primitive values don't have properties or methods, so to access `.length` or `.toString()` you need an object wrapper around the value. Thankfully, JS will automatically *box* (aka wrap) the primitive value to fulfill such accesses.
 
@@ -120,24 +68,6 @@ if (!a) {
 
 The problem is that you've created an object wrapper around the `false` value, but objects themselves are "truthy" (see Chapter 4), so using the object behaves oppositely to using the underlying `false` value itself, which is quite contrary to normal expectation.
 
-If you want to manually box a primitive value, you can use the `Object(..)` function (no `new` keyword):
-
-```js
-var a = "abc";
-var b = new String( a );
-var c = Object( a );
-
-typeof a; // "string"
-typeof b; // "object"
-typeof c; // "object"
-
-b instanceof String; // true
-c instanceof String; // true
-
-Object.prototype.toString.call( b ); // "[object String]"
-Object.prototype.toString.call( c ); // "[object String]"
-```
-
 Again, using the boxed object wrapper directly (like `b` and `c` above) is usually discouraged, but there may be some rare occasions you'll run into where they may be useful.
 
 ## Unboxing
@@ -154,21 +84,11 @@ b.valueOf(); // 42
 c.valueOf(); // true
 ```
 
-Unboxing can also happen implicitly, when using an object wrapper value in a way that requires the primitive value. This process (coercion) will be covered in more detail in Chapter 4, but briefly:
-
-```js
-var a = new String( "abc" );
-var b = a + ""; // `b` has the unboxed primitive value "abc"
-
-typeof a; // "object"
-typeof b; // "string"
-```
 
 ## Natives as Constructors
 
 For `array`, `object`, `function`, and regular-expression values, it's almost universally preferred that you use the literal form for creating the values, but the literal form creates the same sort of object as the constructor form does (that is, there is no nonwrapped value).
 
-Just as we've seen above with the other natives, these constructor forms should generally be avoided, unless you really know you need them, mostly because they introduce exceptions and gotchas that you probably don't really *want* to deal with.
 
 ### `Array(..)`
 
@@ -289,24 +209,6 @@ Bottom line: **never ever, under any circumstances**, should you intentionally c
 
 ### `Object(..)`, `Function(..)`, and `RegExp(..)`
 
-The `Object(..)`/`Function(..)`/`RegExp(..)` constructors are also generally optional (and thus should usually be avoided unless specifically called for):
-
-```js
-var c = new Object();
-c.foo = "bar";
-c; // { foo: "bar" }
-
-var d = { foo: "bar" };
-d; // { foo: "bar" }
-
-var e = new Function( "a", "return a * 2;" );
-var f = function(a) { return a * 2; };
-function g(a) { return a * 2; }
-
-var h = new RegExp( "^a*b+", "g" );
-var i = /^a*b+/g;
-```
-
 There's practically no reason to ever use the `new Object()` constructor form, especially since it forces you to add properties one-by-one instead of many at once in the object literal form.
 
 The `Function` constructor is helpful only in the rarest of cases, where you need to dynamically define a function's parameters and/or its function body. **Do not just treat `Function(..)` as an alternate form of `eval(..)`.** You will almost never need to dynamically define a function in this way.
@@ -330,15 +232,7 @@ To create a date object value, you must use `new Date()`. The `Date(..)` constru
 
 By far the most common reason you construct a date object is to get the current timestamp value (a signed integer number of milliseconds since Jan 1, 1970). You can do this by calling `getTime()` on a date object instance.
 
-But an even easier way is to just call the static helper function defined as of ES5: `Date.now()`. And to polyfill that for pre-ES5 is pretty easy:
-
-```js
-if (!Date.now) {
-	Date.now = function(){
-		return (new Date()).getTime();
-	};
-}
-```
+# But an even easier way is to just call the static helper function defined as of ES5: `Date.now()`.
 
 **Note:** If you call `Date()` without `new`, you'll get back a string representation of the date/time at that moment. The exact form of this representation is not specified in the language spec, though browsers tend to agree on something close to: `"Fri Jul 18 2014 00:31:02 GMT-0500 (CDT)"`.
 
@@ -432,56 +326,5 @@ RegExp.prototype.toString();		// "/(?:)/" -- empty regex
 "abc".match( RegExp.prototype );	// [""]
 ```
 
-A particularly bad idea, you can even modify these native prototypes (not just adding properties as you're probably familiar with):
-
-```js
-Array.isArray( Array.prototype );	// true
-Array.prototype.push( 1, 2, 3 );	// 3
-Array.prototype;					// [1,2,3]
-
-// don't leave it that way, though, or expect weirdness!
-// reset the `Array.prototype` to empty
-Array.prototype.length = 0;
-```
-
 As you can see, `Function.prototype` is a function, `RegExp.prototype` is a regular expression, and `Array.prototype` is an array. Interesting and cool, huh?
 
-#### Prototypes As Defaults
-
-`Function.prototype` being an empty function, `RegExp.prototype` being an "empty" (e.g., non-matching) regex, and `Array.prototype` being an empty array, make them all nice "default" values to assign to variables if those variables wouldn't already have had a value of the proper type.
-
-For example:
-
-```js
-function isThisCool(vals,fn,rx) {
-	vals = vals || Array.prototype;
-	fn = fn || Function.prototype;
-	rx = rx || RegExp.prototype;
-
-	return rx.test(
-		vals.map( fn ).join( "" )
-	);
-}
-
-isThisCool();		// true
-
-isThisCool(
-	["a","b","c"],
-	function(v){ return v.toUpperCase(); },
-	/D/
-);					// false
-```
-
-**Note:** As of ES6, we don't need to use the `vals = vals || ..` default value syntax trick (see Chapter 4) anymore, because default values can be set for parameters via native syntax in the function declaration (see Chapter 5).
-
-One minor side-benefit of this approach is that the `.prototype`s are already created and built-in, thus created *only once*. By contrast, using `[]`, `function(){}`, and `/(?:)/` values themselves for those defaults would (likely, depending on engine implementations) be recreating those values (and probably garbage-collecting them later) for *each call* of `isThisCool(..)`. That could be memory/CPU wasteful.
-
-Also, be very careful not to use `Array.prototype` as a default value **that will subsequently be modified**. In this example, `vals` is used read-only, but if you were to instead make in-place changes to `vals`, you would actually be modifying `Array.prototype` itself, which would lead to the gotchas mentioned earlier!
-
-**Note:** While we're pointing out these native prototypes and some usefulness, be cautious of relying on them and even more wary of modifying them in any way. See Appendix A "Native Prototypes" for more discussion.
-
-## Review
-
-JavaScript provides object wrappers around primitive values, known as natives (`String`, `Number`, `Boolean`, etc). These object wrappers give the values access to behaviors appropriate for each object subtype (`String#trim()` and `Array#concat(..)`).
-
-If you have a simple scalar primitive value like `"abc"` and you access its `length` property or some `String.prototype` method, JS automatically "boxes" the value (wraps it in its respective object wrapper) so that the property/method accesses can be fulfilled.
