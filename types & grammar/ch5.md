@@ -3,48 +3,6 @@
 
 ## Statements & Expressions
 
-It's fairly common for developers to assume that the term "statement" and "expression" are roughly equivalent. But here we need to distinguish between the two, because there are some very important differences in our JS programs.
-
-To draw the distinction, let's borrow from terminology you may be more familiar with: the English language.
-
-A "sentence" is one complete formation of words that expresses a thought. It's comprised of one or more "phrases," each of which can be connected with punctuation marks or conjunction words ("and," "or," etc). A phrase can itself be made up of smaller phrases. Some phrases are incomplete and don't accomplish much by themselves, while other phrases can stand on their own. These rules are collectively called the *grammar* of the English language.
-
-And so it goes with JavaScript grammar. Statements are sentences, expressions are phrases, and operators are conjunctions/punctuation.
-
-Every expression in JS can be evaluated down to a single, specific value result. For example:
-
-```js
-var a = 3 * 6;
-var b = a;
-b;
-```
-
-In this snippet, `3 * 6` is an expression (evaluates to the value `18`). But `a` on the second line is also an expression, as is `b` on the third line. The `a` and `b` expressions both evaluate to the values stored in those variables at that moment, which also happens to be `18`.
-
-Moreover, each of the three lines is a statement containing expressions. `var a = 3 * 6` and `var b = a` are called "declaration statements" because they each declare a variable (and optionally assign a value to it). The `a = 3 * 6` and `b = a` assignments (minus the `var`s) are called assignment expressions.
-
-The third line contains just the expression `b`, but it's also a statement all by itself (though not a terribly interesting one!). This is generally referred to as an "expression statement."
-
-### Statement Completion Values
-
-It's a fairly little known fact that statements all have completion values (even if that value is just `undefined`).
-
-How would you even go about seeing the completion value of a statement?
-
-The most obvious answer is to type the statement into your browser's developer console, because when you execute it, the console by default reports the completion value of the most recent statement it executed.
-
-Let's consider `var b = a`. What's the completion value of that statement?
-
-The `b = a` assignment expression results in the value that was assigned (`18` above), but the `var` statement itself results in `undefined`. Why? Because `var` statements are defined that way in the spec. If you put `var a = 42;` into your console, you'll see `undefined` reported back instead of `42`.
-
-**Note:** Technically, it's a little more complex than that. In the ES5 spec, section 12.2 "Variable Statement," the `VariableDeclaration` algorithm actually *does* return a value (a `string` containing the name of the variable declared -- weird, huh!?), but that value is basically swallowed up (except for use by the `for..in` loop) by the `VariableStatement` algorithm, which forces an empty (aka `undefined`) completion value.
-
-In fact, if you've done much code experimenting in your console (or in a JavaScript environment REPL -- read/evaluate/print/loop tool), you've probably seen `undefined` reported after many different statements, and perhaps never realized why or what that was. Put simply, the console is just reporting the statement's completion value.
-
-But what the console prints out for the completion value isn't something we can use inside our program. So how can we capture the completion value?
-
-That's a much more complicated task. Before we explain *how*, let's explore *why* you would want to do that.
-
 We need to consider other types of statement completion values. For example, any regular `{ .. }` block has a completion value of the completion value of its last contained statement/expression.
 
 Consider:
@@ -91,49 +49,9 @@ a;	// 42
 
 Yeeeaaahhhh. That's terribly ugly. But it works! And it illustrates the point that statement completion values are a real thing that can be captured not just in our console but in our programs.
 
-There's a proposal for ES7 called "do expression." Here's how it might work:
-
-```js
-var a, b;
-
-a = do {
-	if (true) {
-		b = 4 + 38;
-	}
-};
-
-a;	// 42
-```
-
-The `do { .. }` expression executes a block (with one or many statements in it), and the final statement completion value inside the block becomes the completion value *of* the `do` expression, which can then be assigned to `a` as shown.
-
-The general idea is to be able to treat statements as expressions -- they can show up inside other statements -- without needing to wrap them in an inline function expression and perform an explicit `return ..`.
-
-For now, statement completion values are not much more than trivia. But they're probably going to take on more significance as JS evolves, and hopefully `do { .. }` expressions will reduce the temptation to use stuff like `eval(..)`.
-
 **Warning:** Repeating my earlier admonition: avoid `eval(..)`. Seriously. See the *Scope & Closures* title of this series for more explanation.
 
 ### Expression Side Effects
-
-Most expressions don't have side effects. For example:
-
-```js
-var a = 2;
-var b = a + 3;
-```
-
-The expression `a + 3` did not *itself* have a side effect, like for instance changing `a`. It had a result, which is `5`, and that result was assigned to `b` in the statement `b = a + 3`.
-
-The most common example of an expression with (possible) side effects is a function call expression:
-
-```js
-function foo() {
-	a = a + 1;
-}
-
-var a = 1;
-foo();		// result: `undefined`, side effect: changed `a`
-```
 
 There are other side-effecting expressions, though. For example:
 
@@ -279,29 +197,6 @@ I prefer this shorter style, as I think it makes it clearer that the two conditi
 
 ### Contextual Rules
 
-There are quite a few places in the JavaScript grammar rules where the same syntax means different things depending on where/how it's used. This kind of thing can, in isolation, cause quite a bit of confusion.
-
-We won't exhaustively list all such cases here, but just call out a few of the common ones.
-
-#### `{ .. }` Curly Braces
-
-There's two main places (and more coming as JS evolves!) that a pair of `{ .. }` curly braces will show up in your code. Let's take a look at each of them.
-
-##### Object Literals
-
-First, as an `object` literal:
-
-```js
-// assume there's a `bar()` function defined
-
-var a = {
-	foo: bar()
-};
-```
-
-How do we know this is an `object` literal? Because the `{ .. }` pair is a value that's getting assigned to `a`.
-
-**Note:** The `a` reference is called an "l-value" (aka left-hand value) since it's the target of an assignment. The `{ .. }` pair is an "r-value" (aka right-hand value) since it's used *just* as a value (in this case as the source of an assignment).
 
 ##### Labels
 
