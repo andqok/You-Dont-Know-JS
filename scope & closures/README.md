@@ -1,7 +1,5 @@
 # You Don't Know JS: Scope & Closures
 
-<img src="cover.jpg" width="300">
-
 * [Chapter 1: What is Scope?](ch1.md)
 * [Chapter 2: Lexical Scope](ch2.md)
 * [Chapter 3: Function vs. Block Scope](ch3.md)
