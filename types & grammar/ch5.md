@@ -488,60 +488,6 @@ if (str && (matches = str.match( /[aeiou]/g ))) {
 
 We said the `( )` around the assignment is required, but why? Because `&&` has higher precedence than `=`, so without the `( )` to force the binding, the expression would instead be treated as `(str && matches) = str.match..`. But this would be an error, because the result of `(str && matches)` isn't going to be a variable, but instead a value (in this case `undefined`), and so it can't be the left-hand side of an `=` assignment!
 
-OK, so you probably think you've got this operator precedence thing down.
-
-Let's move on to a more complex example (which we'll carry throughout the next several sections of this chapter) to *really* test your understanding:
-
-```js
-var a = 42;
-var b = "foo";
-var c = false;
-
-var d = a && b || c ? c || b ? a : c && b : a;
-
-d;		// ??
-```
-
-OK, evil, I admit it. No one would write a string of expressions like that, right? *Probably* not, but we're going to use it to examine various issues around chaining multiple operators together, which *is* a very common task.
-
-The result above is `42`. But that's not nearly as interesting as how we can figure out that answer without just plugging it into a JS program to let JavaScript sort it out.
-
-Let's dig in.
-
-The first question -- it may not have even occurred to you to ask -- is, does the first part (`a && b || c`) behave like `(a && b) || c` or like `a && (b || c)`? Do you know for certain? Can you even convince yourself they are actually different?
-
-```js
-(false && true) || true;	// true
-false && (true || true);	// false
-```
-
-So, there's proof they're different. But still, how does `false && true || true` behave? The answer:
-
-```js
-false && true || true;		// true
-(false && true) || true;	// true
-```
-
-So we have our answer. The `&&` operator is evaluated first and the `||` operator is evaluated second.
-
-But is that just because of left-to-right processing? Let's reverse the order of operators:
-
-```js
-true || false && false;		// true
-
-(true || false) && false;	// false -- nope
-true || (false && false);	// true -- winner, winner!
-```
-
-Now we've proved that `&&` is evaluated first and then `||`, and in this case that was actually counter to generally expected left-to-right processing.
-
-So what caused the behavior? **Operator precedence**.
-
-Every language defines its own operator precedence list. It's dismaying, though, just how uncommon it is that JS developers have read JS's list.
-
-If you knew it well, the above examples wouldn't have tripped you up in the slightest, because you'd already know that `&&` is more precedent than `||`. But I bet a fair amount of readers had to think about it a little bit.
-
-**Note:** Unfortunately, the JS spec doesn't really have its operator precedence list in a convenient, single location. You have to parse through and understand all the grammar rules. So we'll try to lay out the more common and useful bits here in a more convenient format. For a complete list of operator precedence, see "Operator Precedence" on the MDN site (* https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence).
 
 ### Short Circuited
 
