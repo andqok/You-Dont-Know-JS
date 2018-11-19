@@ -112,7 +112,7 @@ If you tried that same snippet but with `var i` in the `for` loop header, you'd 
 
 There's one other form of block-scoped declaration to consider: the `const`, which creates *constants*.
 
-What exactly is a constant? It's a variable that's read-only after its initial value is set. Consider:
+What exactly is a constant? **It's a variable that's read-only after its initial value is set.** Consider:
 
 ```js
 {
@@ -123,9 +123,9 @@ What exactly is a constant? It's a variable that's read-only after its initial v
 }
 ```
 
-You are not allowed to change the value the variable holds once it's been set, at declaration time. A `const` declaration must have an explicit initialization. If you wanted a *constant* with the `undefined` value, you'd have to declare `const a = undefined` to get it.
+You are not allowed to change the value the variable holds once it's been set, at declaration time. 
 
-Constants are not a restriction on the value itself, but on the variable's assignment of that value. In other words, the value is not frozen or immutable because of `const`, just the assignment of it. If the value is complex, such as an object or array, the contents of the value can still be modified:
+**Constants are not a restriction on the value itself, but on the variable's assignment of that value.** In other words, the value is not frozen or immutable because of `const`, just the assignment of it. If the value is complex, such as an object or array, the contents of the value can still be modified:
 
 ```js
 {
@@ -139,7 +139,6 @@ Constants are not a restriction on the value itself, but on the variable's assig
 
 The `a` variable doesn't actually hold a constant array; rather, it holds a constant reference to the array. The array itself is freely mutable.
 
-**Warning:** Assigning an object or array as a constant means that value will not be able to be garbage collected until that constant's lexical scope goes away, as the reference to the value can never be unset. That may be desirable, but be careful if it's not your intent!
 
 Essentially, `const` declarations enforce what we've stylistically signaled with our code for years, where we declared a variable name of all uppercase letters and assigned it some literal value that we took care never to change. There's no enforcement on a `var` assignment, but there is now with a `const` assignment, which can help you catch unintended changes.
 
@@ -147,13 +146,10 @@ Essentially, `const` declarations enforce what we've stylistically signaled with
 
 #### `const` Or Not
 
-There's some rumored assumptions that a `const` could be more optimizable by the JS engine in certain scenarios than a `let` or `var` would be. Theoretically, the engine more easily knows the variable's value/type will never change, so it can eliminate some possible tracking.
 
 **Whether `const` really helps here or this is just our own fantasies and intuitions, the much more important decision to make is if you intend constant behavior or not. Remember: one of the most important roles for source code is to communicate clearly, not only to you, but your future self and other code collaborators, what your intent is.**
 
 Some developers prefer to start out every variable declaration as a `const` and then relax a declaration back to a `let` if it becomes necessary for its value to change in the code. This is an interesting perspective, but it's not clear that it genuinely improves the readability or reason-ability of code.
-
-It's not really a *protection*, as many believe, because any later developer who wants to change a value of a `const` can just blindly change `const` to `let` on the declaration. At best, it protects accidental change. But again, other than our intuitions and sensibilities, there doesn't appear to be objective and clear measure of what constitutes "accidents" or prevention thereof. Similar mindsets exist around type enforcement.
 
 My advice: to avoid potentially confusing code, only use `const` for variables that you're intentionally and obviously signaling will not change. In other words, don't *rely on* `const` for code behavior, but instead use it as a tool for signaling intent, when intent can be signaled clearly.
 
@@ -175,7 +171,7 @@ Consider:
 foo();						// ReferenceError
 ```
 
-The `foo()` function is declared inside the `{ .. }` block, and as of ES6 is block-scoped there. So it's not available outside that block. But also note that it is "hoisted" within the block, as opposed to `let` declarations, which suffer the TDZ error trap mentioned earlier.
+The `foo()` function is declared inside the `{ .. }` block, and as of ES6 is block-scoped there. So it's not available outside that block. 
 
 Block-scoping of function declarations could be a problem if you've ever written code like this before, and relied on the old legacy non-block-scoped behavior:
 
@@ -212,7 +208,7 @@ foo( ...[1,2,3] );				// 1 2 3
 
 When `...` is used in front of an array (actually, any *iterable*, which we cover in Chapter 3), it acts to "spread" it out into its individual values.
 
-You'll typically see that usage as is shown in that previous snippet, when spreading out an array as a set of arguments to a function call. In this usage, `...` acts to give us a simpler syntactic replacement for the `apply(..)` method, which we would typically have used pre-ES6 as:
+You'll typically see that usage as is shown in that previous snippet, when spreading out an array as a set of arguments to a function call. In this usage, `...` acts to give us **a simpler syntactic replacement for the `apply(..)` method, which we would typically have used pre-ES6** as:
 
 ```js
 foo.apply( null, [1,2,3] );		// 1 2 3
@@ -313,7 +309,7 @@ foo( 5 );			// 36
 foo( null, 6 );		// 17
 ```
 
-Of course, if you've used this pattern before, you know that it's both helpful and a little bit dangerous, if for example you need to be able to pass in what would otherwise be considered a falsy value for one of the parameters. Consider:
+**Of course, if you've used this pattern before, you know that it's both helpful and a little bit dangerous, if for example you need to be able to pass in what would otherwise be considered a falsy value for one of the parameters.** Consider:
 
 ```js
 foo( 0, 42 );		// 53 <-- Oops, not 42
@@ -351,13 +347,13 @@ foo( 5 );				// 36
 foo( 5, undefined );	// NaN
 ```
 
-But how would you omit the first `x` argument without the ability to pass in any kind of value (not even `undefined`) that signals "I'm omitting this argument"?
+**But how would you omit the first `x` argument without the ability to pass in any kind of value (not even `undefined`) that signals "I'm omitting this argument"?**
 
 `foo(,5)` is tempting, but it's invalid syntax. `foo.apply(null,[,5])` seems like it should do the trick, but `apply(..)`'s quirks here mean that the arguments are treated as `[undefined,5]`, which of course doesn't omit.
 
 If you investigate further, you'll find you can only omit arguments on the end (i.e., righthand side) by simply passing fewer arguments than "expected," but you cannot omit arguments in the middle or at the beginning of the arguments list. It's just not possible.
 
-There's a principle applied to JavaScript's design here that is important to remember: `undefined` means *missing*. That is, there's no difference between `undefined` and *missing*, at least as far as function arguments go.
+**There's a principle applied to JavaScript's design here that is important to remember: `undefined` means *missing*. That is, there's no difference between `undefined` and *missing*, at least as far as function arguments go.**
 
 **Note:** There are, confusingly, other places in JS where this particular design principle doesn't apply, such as for arrays with empty slots. See the *Types & Grammar* title of this series for more information.
 
@@ -373,10 +369,10 @@ foo( 5, 6 );			// 11
 foo( 0, 42 );			// 42
 
 foo( 5 );				// 36
-foo( 5, undefined );	// 36 <-- `undefined` is missing
+foo( 5, undefined );	// 36 <-- `undefined` means missing
 foo( 5, null );			// 5  <-- null coerces to `0`
 
-foo( undefined, 6 );	// 17 <-- `undefined` is missing
+foo( undefined, 6 );	// 17 <-- `undefined` means missing
 foo( null, 6 );			// 6  <-- null coerces to `0`
 ```
 
