@@ -219,7 +219,7 @@ Essentially, `const` declarations enforce what we've stylistically signaled with
 
 There's some rumored assumptions that a `const` could be more optimizable by the JS engine in certain scenarios than a `let` or `var` would be. Theoretically, the engine more easily knows the variable's value/type will never change, so it can eliminate some possible tracking.
 
-Whether `const` really helps here or this is just our own fantasies and intuitions, the much more important decision to make is if you intend constant behavior or not. Remember: one of the most important roles for source code is to communicate clearly, not only to you, but your future self and other code collaborators, what your intent is.
+**Whether `const` really helps here or this is just our own fantasies and intuitions, the much more important decision to make is if you intend constant behavior or not. Remember: one of the most important roles for source code is to communicate clearly, not only to you, but your future self and other code collaborators, what your intent is.**
 
 Some developers prefer to start out every variable declaration as a `const` and then relax a declaration back to a `let` if it becomes necessary for its value to change in the code. This is an interesting perspective, but it's not clear that it genuinely improves the readability or reason-ability of code.
 
@@ -229,7 +229,7 @@ My advice: to avoid potentially confusing code, only use `const` for variables t
 
 ### Block-scoped Functions
 
-Starting with ES6, function declarations that occur inside of blocks are now specified to be scoped to that block. Prior to ES6, the specification did not call for this, but many implementations did it anyway. So now the specification meets reality.
+**Starting with ES6, function declarations that occur inside of blocks are now specified to be scoped to that block.** Prior to ES6, the specification did not call for this, but many implementations did it anyway. So now the specification meets reality.
 
 Consider:
 
