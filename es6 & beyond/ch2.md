@@ -1,11 +1,6 @@
 # You Don't Know JS: ES6 & Beyond
 # Chapter 2: Syntax
 
-If you've been writing JS for any length of time, odds are the syntax is pretty familiar to you. There are certainly many quirks, but overall it's a fairly reasonable and straightforward syntax that draws many similarities from other languages.
-
-However, ES6 adds quite a few new syntactic forms that take some getting used to. In this chapter, we'll tour through them to find out what's in store.
-
-**Tip:** At the time of this writing, some of the features discussed in this book have been implemented in various browsers (Firefox, Chrome, etc.), but some have only been partially implemented and many others have not been implemented at all. Your experience may be mixed trying these examples directly. If so, try them out with transpilers, as most of these features are covered by those tools. ES6Fiddle (http://www.es6fiddle.net/) is a great, easy-to-use playground for trying out ES6, as is the online REPL for the Babel transpiler (http://babeljs.io/repl/).
 
 ## Block-Scoped Declarations
 
@@ -39,57 +34,11 @@ console.log( a );		// 2
 
 It's not very common or idiomatic thus far in JS to use a standalone `{ .. }` block, but it's always been valid. And developers from other languages that have *block scoping* will readily recognize that pattern.
 
-I believe this is the best way to create block-scoped variables, with a dedicated `{ .. }` block. Moreover, you should always put the `let` declaration(s) at the very top of that block. If you have more than one to declare, I'd recommend using just one `let`.
+I believe this is the best way to create block-scoped variables, with a dedicated `{ .. }` block. **Moreover, you should always put the `let` declaration(s) at the very top of that block.** If you have more than one to declare, I'd recommend using just one `let`.
 
-Stylistically, I even prefer to put the `let` on the same line as the opening `{`, to make it clearer that this block is only for the purpose of declaring the scope for those variables.
 
-```js
-{	let a = 2, b, c;
-	// ..
-}
-```
 
-Now, that's going to look strange and it's not likely going to match the recommendations given in most other ES6 literature. But I have reasons for my madness.
-
-There's another experimental (not standardized) form of the `let` declaration called the `let`-block, which looks like:
-
-```js
-let (a = 2, b, c) {
-	// ..
-}
-```
-
-That form is what I call *explicit* block scoping, whereas the `let ..` declaration form that mirrors `var` is more *implicit*, as it kind of hijacks whatever `{ .. }` pair it's found in. Generally developers find *explicit* mechanisms a bit more preferable than *implicit* mechanisms, and I claim this is one of those cases.
-
-If you compare the previous two snippet forms, they're very similar, and in my opinion both qualify stylistically as *explicit* block scoping. Unfortunately, the `let (..) { .. }` form, the most *explicit* of the options, was not adopted in ES6. That may be revisited post-ES6, but for now the former option is our best bet, I think.
-
-To reinforce the *implicit* nature of `let ..` declarations, consider these usages:
-
-```js
-let a = 2;
-
-if (a > 1) {
-	let b = a * 3;
-	console.log( b );		// 6
-
-	for (let i = a; i <= b; i++) {
-		let j = i + 10;
-		console.log( j );
-	}
-	// 12 13 14 15 16
-
-	let c = a + b;
-	console.log( c );		// 8
-}
-```
-
-Quick quiz without looking back at that snippet: which variable(s) exist only inside the `if` statement, and which variable(s) exist only inside the `for` loop?
-
-The answers: the `if` statement contains `b` and `c` block-scoped variables, and the `for` loop contains `i` and `j` block-scoped variables.
-
-Did you have to think about it for a moment? Does it surprise you that `i` isn't added to the enclosing `if` statement scope? That mental pause and questioning -- I call it a "mental tax" -- comes from the fact that this `let` mechanism is not only new to us, but it's also *implicit*.
-
-There's also hazard in the `let c = ..` declaration appearing so far down in the scope. Unlike traditional `var`-declared variables, which are attached to the entire enclosing function scope regardless of where they appear, `let` declarations attach to the block scope but are not initialized until they appear in the block.
+There's also hazard in the `let c = ..` declaration appearing so far down in the scope. **Unlike traditional `var`-declared variables, which are attached to the entire enclosing function scope regardless of where they appear, `let` declarations attach to the block scope but are not initialized until they appear in the block.**
 
 Accessing a `let`-declared variable earlier than its `let ..` declaration/initialization causes an error, whereas with `var` declarations the ordering doesn't matter (except stylistically).
 
@@ -139,7 +88,6 @@ This explicitness on your part, which is up to you to maintain with discipline, 
 
 #### `let` + `for`
 
-The only exception I'd make to the preference for the *explicit* form of `let` declaration blocking is a `let` that appears in the header of a `for` loop. The reason may seem nuanced, but I believe it to be one of the more important ES6 features.
 
 Consider:
 
@@ -159,24 +107,6 @@ The `let i` in the `for` header declares an `i` not just for the `for` loop itse
 
 If you tried that same snippet but with `var i` in the `for` loop header, you'd get `5` instead of `3`, because there'd only be one `i` in the outer scope that was closed over, instead of a new `i` for each iteration's function to close over.
 
-You could also have accomplished the same thing slightly more verbosely:
-
-```js
-var funcs = [];
-
-for (var i = 0; i < 5; i++) {
-	let j = i;
-	funcs.push( function(){
-		console.log( j );
-	} );
-}
-
-funcs[3]();		// 3
-```
-
-Here, we forcibly create a new `j` for each iteration, and then the closure works the same way. I prefer the former approach; that extra special capability is why I endorse the `for (let .. ) ..` form. It could be argued it's somewhat more *implicit*, but it's *explicit* enough, and useful enough, for my tastes.
-
-`let` also works the same way with `for..in` and `for..of` loops (see "`for..of` Loops").
 
 ### `const` Declarations
 
