@@ -1051,7 +1051,7 @@ Others may prefer the assign-overwrite approach to this task. You might be tempt
 config = Object.assign( {}, defaults, config );
 ```
 
-That looks way nicer, huh? But there's a major problem! `Object.assign(..)` is shallow, which means when it copies `defaults.options`, it just copies that object reference, not deep cloning that object's properties to a `config.options` object. `Object.assign(..)` would need to be applied (sort of "recursively") at all levels of your object's tree to get the deep cloning you're expecting.
+**That looks way nicer, huh? But there's a major problem! `Object.assign(..)` is shallow, which means when it copies `defaults.options`, it just copies that object reference, not deep cloning that object's properties to a `config.options` object. `Object.assign(..)` would need to be applied (sort of "recursively") at all levels of your object's tree to get the deep cloning you're expecting.**
 
 **Note:** Many JS utility libraries/frameworks provide their own option for deep cloning of an object, but those approaches and their gotchas are beyond our scope to discuss here.
 
@@ -1131,7 +1131,7 @@ var x = 2, y = 3,
 	};
 ```
 
-If it's always felt redundant to say `x: x` all over, there's good news. If you need to define a property that is the same name as a lexical identifier, you can shorten it from `x: x` to `x`. Consider:
+**If it's always felt redundant to say `x: x` all over, there's good news. If you need to define a property that is the same name as a lexical identifier, you can shorten it from `x: x` to `x`.** Consider:
 
 ```js
 var x = 2, y = 3,
@@ -1171,7 +1171,7 @@ var o = {
 }
 ```
 
-**Warning:** While `x() { .. }` seems to just be shorthand for `x: function(){ .. }`, concise methods have special behaviors that their older counterparts don't; specifically, the allowance for `super` (see "Object `super`" later in this chapter).
+**Warning:** While `x() { .. }` seems to just be shorthand for `x: function(){ .. }`, **concise methods have special behaviors that their older counterparts don't; specifically, the allowance for `super`** (see "Object `super`" later in this chapter).
 
 Generators (see Chapter 4) also have a concise method form:
 
@@ -1315,7 +1315,7 @@ runSomething( {
 } );
 ```
 
-Look closely. Do you see the problem? The concise method definition implies `something: function(x,y)`. See how the second `something` we were relying on has been omitted? In other words, concise methods imply anonymous function expressions.
+**Look closely. Do you see the problem? The concise method definition implies `something: function(x,y)`. See how the second `something` we were relying on has been omitted? In other words, concise methods imply anonymous function expressions.**
 
 Yeah, yuck.
 
@@ -1422,7 +1422,7 @@ var o2 = {
 };
 ```
 
-`o2` is declared with a normal object literal, but it's also `[[Prototype]]`-linked to `o1`. The `__proto__` property name here can also be a string `"__proto__"`, but note that it *cannot* be the result of a computed property name (see the previous section).
+`o2` is declared with a normal object literal, but it's also `[[Prototype]]`-linked to `o1`. The `__proto__` property name here can also be a string `"__proto__"`, **but note that it *cannot* be the result of a computed property name (see the previous section).**
 
 `__proto__` is controversial, to say the least. It's a decades-old proprietary extension to JS that is finally standardized, somewhat begrudgingly it seems, in ES6. Many developers feel it shouldn't ever be used. In fact, it's in "Annex B" of ES6, which is the section that lists things JS feels it has to standardize for compatibility reasons only.
 
@@ -1478,13 +1478,6 @@ For complete details on `super`, see "Classes" in Chapter 3.
 
 ## Template Literals
 
-At the very outset of this section, I'm going to have to call out the name of this ES6 feature as being awfully... misleading, depending on your experiences with what the word *template* means.
-
-Many developers think of templates as being reusable renderable pieces of text, such as the capability provided by most template engines (Mustache, Handlebars, etc.). ES6's use of the word *template* would imply something similar, like a way to declare inline template literals that can be re-rendered. However, that's not at all the right way to think about this feature.
-
-So, before we go on, I'm renaming to what it should have been called: *interpolated string literals* (or *interpoliterals* for short).
-
-You're already well aware of declaring string literals with `"` or `'` delimiters, and you also know that these are not *smart strings* (as some languages have), where the contents would be parsed for interpolation expressions.
 
 However, ES6 introduces a new type of string literal, using the `` ` `` backtick as the delimiter. These string literals allow basic string interpolation expressions to be embedded, which are then automatically parsed and evaluated.
 
@@ -1538,53 +1531,7 @@ Unless appearing as explicit escape sequences in the literal value, the value of
 
 Any valid expression is allowed to appear inside `${..}` in an interpolated string literal, including function calls, inline function expression calls, and even other interpolated string literals!
 
-Consider:
 
-```js
-function upper(s) {
-	return s.toUpperCase();
-}
-
-var who = "reader";
-
-var text =
-`A very ${upper( "warm" )} welcome
-to all of you ${upper( `${who}s` )}!`;
-
-console.log( text );
-// A very WARM welcome
-// to all of you READERS!
-```
-
-Here, the inner `` `${who}s` `` interpolated string literal was a little bit nicer convenience for us when combining the `who` variable with the `"s"` string, as opposed to `who + "s"`. There will be cases that nesting interpolated string literals is helpful, but be wary if you find yourself doing that kind of thing often, or if you find yourself nesting several levels deep.
-
-If that's the case, the odds are good that your string value production could benefit from some abstractions.
-
-**Warning:** As a word of caution, be very careful about the readability of your code with such new found power. Just like with default value expressions and destructuring assignment expressions, just because you *can* do something doesn't mean you *should* do it. Never go so overboard with new ES6 tricks that your code becomes more clever than you or your other team members.
-
-#### Expression Scope
-
-One quick note about the scope that is used to resolve variables in expressions. I mentioned earlier that an interpolated string literal is kind of like an IIFE, and it turns out thinking about it like that explains the scoping behavior as well.
-
-Consider:
-
-```js
-function foo(str) {
-	var name = "foo";
-	console.log( str );
-}
-
-function bar() {
-	var name = "bar";
-	foo( `Hello from ${name}!` );
-}
-
-var name = "global";
-
-bar();					// "Hello from bar!"
-```
-
-At the moment the `` `..` `` string literal is expressed, inside the `bar()` function, the scope available to it finds `bar()`'s `name` variable with value `"bar"`. Neither the global `name` nor `foo(..)`'s `name` matter. In other words, an interpolated string literal is just lexically scoped where it appears, not dynamically scoped in any way.
 
 ### Tagged Template Literals
 
