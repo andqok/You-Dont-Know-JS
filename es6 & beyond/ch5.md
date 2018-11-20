@@ -369,7 +369,7 @@ m.has( x );						// true
 m.has( y );						// false
 ```
 
-Maps essentially let you associate some extra piece of information (the value) with an object (the key) without actually putting that information on the object itself.
+**Maps essentially let you associate some extra piece of information (the value) with an object (the key) without actually putting that information on the object itself.**
 
 While you can use any kind of value as a key for a map, you typically will use objects, as strings and other primitives are already eligible as keys of normal objects. In other words, you'll probably want to continue to use normal objects for maps unless some or all of the keys need to be objects, in which case map is more appropriate.
 
