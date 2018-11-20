@@ -380,7 +380,6 @@ Notice the results and how they imply both subtle differences and similarities t
 
 `x = 11` in a function declaration is more like `x !== undefined ? x : 11` than the much more common idiom `x || 11`, so you'll need to be careful in converting your pre-ES6 code to this ES6 default parameter value syntax.
 
-**Note:** A rest/gather parameter (see "Spread/Rest") cannot have a default value. So, while `function foo(...vals=[1,2,3]) {` might seem an intriguing capability, it's not valid syntax. You'll need to continue to apply that sort of logic manually if necessary.
 
 ### Default Value Expressions
 
@@ -423,7 +422,7 @@ foo();					// ReferenceError
 
 The `w` in the `w + 1` default value expression looks for `w` in the formal parameters' scope, but does not find it, so the outer scope's `w` is used. Next, The `x` in the `x + 1` default value expression finds `x` in the formal parameters' scope, and luckily `x` has already been initialized, so the assignment to `y` works fine.
 
-However, the `z` in `z + 1` finds `z` as a not-yet-initialized-at-that-moment parameter variable, so it never tries to find the `z` from the outer scope.
+**However, the `z` in `z + 1` finds `z` as a not-yet-initialized-at-that-moment parameter variable, so it never tries to find the `z` from the outer scope.**
 
 As we mentioned in the "`let` Declarations" section earlier in this chapter, ES6 has a TDZ, which prevents a variable from being accessed in its uninitialized state. As such, the `z + 1` default value expression throws a TDZ `ReferenceError` error.
 
@@ -493,7 +492,7 @@ console.log( x, y, z );				// 4 5 6
 
 The `tmp.x` property value is assigned to the `x` variable, and likewise for `tmp.y` to `y` and `tmp.z` to `z`.
 
-Manually assigning indexed values from an array or properties from an object can be thought of as *structured assignment*. ES6 adds a dedicated syntax for *destructuring*, specifically *array destructuring* and *object destructuring*. This syntax eliminates the need for the `tmp` variable in the previous snippets, making them much cleaner. Consider:
+Manually assigning indexed values from an array or properties from an object can be thought of as *structured assignment*. ES6 adds a dedicated syntax for ***destructuring*, specifically *array destructuring* and *object destructuring***. This syntax eliminates the need for the `tmp` variable in the previous snippets, making them much cleaner. Consider:
 
 ```js
 var [ a, b, c ] = foo();
@@ -521,7 +520,7 @@ console.log( x, y, z );				// 4 5 6
 
 Pretty cool, right?
 
-But is `{ x, .. }` leaving off the `x: ` part or leaving off the `: x` part? We're actually leaving off the `x: ` part when we use the shorter syntax. That may not seem like an important detail, but you'll understand its importance in just a moment.
+But is `{ x, .. }` leaving off the `x: ` part or leaving off the `: x` part? **We're actually leaving off the `x: ` part when we use the shorter syntax.** That may not seem like an important detail, but you'll understand its importance in just a moment.
 
 If you can write the shorter form, why would you ever write out the longer form? Because that longer form actually allows you to assign a property to a different variable name, which can sometimes be quite useful:
 
@@ -552,7 +551,7 @@ Recall:
 var { x: bam, y: baz, z: bap } = bar();
 ```
 
-The syntactic pattern here is `source: target` (or `value: variable-alias`). `x: bam` means the `x` property is the source value and `bam` is the target variable to assign to. In other words, object literals are `target <-- source`, and object destructuring assignments are `source --> target`. See how that's flipped?
+**The syntactic pattern here is `source: target` (or `value: variable-alias`). `x: bam` means the `x` property is the source value and `bam` is the target variable to assign to. In other words, object literals are `target <-- source`, and object destructuring assignments are `source --> target`. See how that's flipped?**
 
 There's another way to think about this syntax though, which may help ease the confusion. Consider:
 
@@ -575,7 +574,7 @@ So, that symmetry may help to explain why the syntactic pattern was intentionall
 
 ### Not Just Declarations
 
-So far, we've used destructuring assignment with `var` declarations (of course, they could also use `let` and `const`), but destructuring is a general assignment operation, not just a declaration.
+So far, we've used destructuring assignment with `var` declarations (of course, they could also use `let` and `const`), but **destructuring is a general assignment operation, not just a declaration.**
 
 Consider:
 
@@ -813,7 +812,7 @@ The `var [ .. ] = a` destructuring assignment spreads `a` out to be assigned to 
 
 ### Default Value Assignment
 
-Both forms of destructuring can offer a default value option for an assignment, using the `=` syntax similar to the default function argument values discussed earlier.
+**Both forms of destructuring can offer a default value option for an assignment, using the `=` syntax similar to the default function argument values discussed earlier.**
 
 Consider:
 
@@ -920,7 +919,7 @@ foo( { y: 42 } );					// undefined 42
 foo( {} );							// undefined undefined
 ```
 
-This technique is an approximation of named arguments (a long requested feature for JS!), in that the properties on the object map to the destructured parameters of the same names. That also means that we get optional parameters (in any position) for free, as you can see leaving off the `x` "parameter" worked as we'd expect.
+**This technique is an approximation of named arguments (a long requested feature for JS!), in that the properties on the object map to the destructured parameters of the same names. That also means that we get optional parameters (in any position) for free, as you can see leaving off the `x` "parameter" worked as we'd expect.**
 
 Of course, all the previously discussed variations of destructuring are available to us with parameter destructuring, including nested destructuring, default values, and more. Destructuring also mixes fine with other ES6 function parameter capabilities, like default parameter values and rest/gather parameters.
 
