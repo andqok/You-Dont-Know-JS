@@ -77,31 +77,8 @@ Consider:
 ```
 So `typeof` works to check the existance of `var` (...if you ever need that?) But `typeof b` throws the TDZ error because farther down in the code there happens to be a `let b` declaration. Oops.
 
-Now it should be clearer why I insist that `let` declarations should all be at the top of their scope. That totally avoids the accidental errors of accessing too early. It also makes it more *explicit* when you look at the start of a block, any block, what variables it contains.
-
 
 **Note:** For more information on `let` and block scoping, see Chapter 3 of the *Scope & Closures* title of this series.
-
-#### `let` + `for`
-
-
-Consider:
-
-```js
-var funcs = [];
-
-for (let i = 0; i < 5; i++) {
-	funcs.push( function(){
-		console.log( i );
-	} );
-}
-
-funcs[3]();		// 3
-```
-
-The `let i` in the `for` header declares an `i` not just for the `for` loop itself, but it redeclares a new `i` for each iteration of the loop. That means that closures created inside the loop iteration close over those per-iteration variables the way you'd expect.
-
-If you tried that same snippet but with `var i` in the `for` loop header, you'd get `5` instead of `3`, because there'd only be one `i` in the outer scope that was closed over, instead of a new `i` for each iteration's function to close over.
 
 
 ### `const` Declarations
@@ -138,7 +115,6 @@ The `a` variable doesn't actually hold a constant array; rather, it holds a cons
 
 Essentially, `const` declarations enforce what we've stylistically signaled with our code for years, where we declared a variable name of all uppercase letters and assigned it some literal value that we took care never to change. There's no enforcement on a `var` assignment, but there is now with a `const` assignment, which can help you catch unintended changes.
 
-`const` *can* be used with variable declarations of `for`, `for..in`, and `for..of` loops (see "`for..of` Loops"). However, an error will be thrown if there's any attempt to reassign, such as the typical `i++` clause of a `for` loop.
 
 #### `const` Or Not
 
