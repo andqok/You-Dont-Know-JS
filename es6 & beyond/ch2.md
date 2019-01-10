@@ -34,11 +34,11 @@ console.log( a );		// 2
 
 It's not very common or idiomatic thus far in JS to use a standalone `{ .. }` block, but it's always been valid. And developers from other languages that have *block scoping* will readily recognize that pattern.
 
-I believe this is the best way to create block-scoped variables, with a dedicated `{ .. }` block. **Moreover, you should always put the `let` declaration(s) at the very top of that block.** If you have more than one to declare, I'd recommend using just one `let`.
+I believe this is the best way to create block-scoped variables, with a dedicated `{ .. }` block. **Opinion is, you should always put the `let` declaration(s) at the very top of that block.** If you have more than one to declare, I'd recommend using just one `let`.
 
 
 
-There's also hazard in the `let c = ..` declaration appearing so far down in the scope. **Unlike traditional `var`-declared variables, which are attached to the entire enclosing function scope regardless of where they appear, `let` declarations attach to the block scope but are not initialized until they appear in the block.**
+There's also hazard in the `let c = ..` declaration appearing so far down in the scope. **Unlike traditional `var`-declared variables, which are attached to the entire enclosing function scope regardless of where they appear, `let` declarations (attach to the block scope | which means... ?) but are not initialized until they appear in the block.**
 
 Accessing a `let`-declared variable earlier than its `let ..` declaration/initialization causes an error, whereas with `var` declarations the ordering doesn't matter (except stylistically).
 
@@ -54,9 +54,9 @@ Consider:
 }
 ```
 
-**Warning:** This `ReferenceError` from accessing too-early `let`-declared references is technically called a *Temporal Dead Zone (TDZ)* error -- you're accessing a variable that's been declared but not yet initialized. This will not be the only time we see TDZ errors -- they crop up in several places in ES6. Also, note that "initialized" doesn't require explicitly assigning a value in your code, as `let b;` is totally valid. A variable that's not given an assignment at declaration time is assumed to have been assigned the `undefined` value, so `let b;` is the same as `let b = undefined;`. Explicit assignment or not, you cannot access `b` until the `let b` statement is run.
+**Warning:** This `ReferenceError` from accessing too-early `let`-declared references is technically called a *Temporal Dead Zone (TDZ)* error -- you're accessing a variable that's been declared but not yet initialized. This will not be the only time we see TDZ errors -- they crop up in several places in ES6 (I would like to know where?). Also, note that "initialized" doesn't require explicitly assigning a value in your code, as `let b;` is totally valid. A variable that's not given an assignment at declaration time is assumed to have been assigned the `undefined` value, so `let b;` is the same as `let b = undefined;`. Explicit assignment or not, you cannot access `b` until the `let b` statement is run.
 
-One last gotcha: `typeof` behaves differently with TDZ variables than it does with undeclared (or declared!) variables. For example:
+`typeof` behaves differently with TDZ variables than it does with undeclared (or declared!) variables. For example:
 
 ```js
 {
@@ -75,14 +75,10 @@ One last gotcha: `typeof` behaves differently with TDZ variables than it does wi
 	let b;
 }
 ```
-
-The `a` is not declared, so `typeof` is the only safe way to check for its existence or not. But `typeof b` throws the TDZ error because farther down in the code there happens to be a `let b` declaration. Oops.
+So `typeof` works to check the existance of `var` (...if you ever need that?) But `typeof b` throws the TDZ error because farther down in the code there happens to be a `let b` declaration. Oops.
 
 Now it should be clearer why I insist that `let` declarations should all be at the top of their scope. That totally avoids the accidental errors of accessing too early. It also makes it more *explicit* when you look at the start of a block, any block, what variables it contains.
 
-Your blocks (`if` statements, `while` loops, etc.) don't have to share their original behavior with scoping behavior.
-
-This explicitness on your part, which is up to you to maintain with discipline, will save you lots of refactor headaches and footguns down the line.
 
 **Note:** For more information on `let` and block scoping, see Chapter 3 of the *Scope & Closures* title of this series.
 
